@@ -1,46 +1,129 @@
-PF-HMM
+psyc-pathology-main
 ----------------
 
 **Brief Description**
 
-This repository contains data, MATLAB code, and Python scripts associated with our theoretical paper, Inferring the causes of noise from binary outcomes:
-A normative theory of learning under uncertainty. The repository is structured to clearly separate preprocessing, data analysis, and figure generation.
+This repository contains data, MATLAB code, and Python scripts associated with our paper, TODO: add paper title. 
 
 **File organization**::
 
-  PF-HMM/
-    ├── mat_data/
-    │   └── experiment_sealion/
-    │     └── data_sealion.mat (preprocessed trial data)
-    │     └── hidden_state.mat (the hidden states of the actual time series)
-    │     └── reward_stimuli.pkl (the reward location (observation) of the time series)
-    │   └──experiment_turtle/
-    │   └── experiment_binA/
-    │   └── experiment_binB/
-    │   └── experiment_sim/
-    │     └── timeseries100.mat (the generated timeseries with 100 trials used in plotting fig2a)
-    ├── matlab_code/
-    │   └── binary_hgf_fit.m (fits the binary HGF model using binary_hgf_model.m)
-    │   └── cbm/ (folder contains cbm fitting code)
-    │   └── tools/ (additional tool code)
-    │   └── hmm.m (defines the HMM model)
-    │   └── hmm_rho_fit.m (run the script to fit HMM)
-    │   └── model_comparison.m (run the script for model comparison results between HMM and HMM-beta)
-    │   └── hmm_rho_recovery.m (run the script for HMM param recovery analysis)
-    │   └── other_bmc.m (run the script for model comparison results between PF-HMM, binary HGF, and PHA)
-    │   └── pearcehall_fit.m (fits the Pearce-Hall model using pearcehall_model.m)
-    │   └── pfhmm.m (defines the PF-HMM model)
-    │   └── pfhmm_sim.m (run the script to simulate PF and HMM)
-    │   └── pfhmm_rho_fit.m (run the script to fit PF-HMM with preservation)
-    │   └── pfhmm_rho_recovery.m (run the script for PF-HMM param recovery analysis)
-    │   └── pfhmm_rt_analysis.m (run the script for response time analysis)
-    │   └── response_model.m (defines the response model)
-    │   └── stats_table.m (produce tables)
-    ├── python_code/
-    │   └── figures.ipynb (run the script to reproduce the main figures)
-    ├── saved_figures/
-    │   └── (store figures saved from figures.ipynb, hgf_plot.m, hmm_rho_recovery.m, and pfhmm_rho_recovery.m)
-    └── README.md
+  psyc-pathology-main/
+  ├── mat_data/
+  │   ├── experiment_1/
+  │   │   ├── critical_value_grouping_fascore_bird.mat
+  │   │   │   (theory-guided grouping results for the bird task, including grouped learning rates,
+  │   │   │   factor-score summaries, and covariate analyses)
+  │   │   ├── data_bird.mat
+  │   │   │   (preprocessed bird-task trial data)
+  │   │   ├── fa_score_ex2_factors2_bird.mat
+  │   │   │   (two-factor EFA results for the bird task)
+  │   │   ├── factor_glm_mn_lr_bird.mat
+  │   │   │   (GLM results relating bird-task factor scores and model-neutral learning-rate effects)
+  │   │   ├── factor_glm_mn_lr_supp_bird.mat
+  │   │   │   (supplementary GLM results for bird-task factor-score analyses)
+  │   │   ├── model_neutral_bird.mat
+  │   │   │   (model-neutral learning-rate estimates for the bird task)
+  │   │   ├── model_neutral_pilot1.mat
+  │   │   │   (pilot dataset 1 model-neutral learning-rate estimates for the bird task)
+  │   │   └── model_neutral_pilot2.mat
+  │   │       (pilot dataset 2 model-neutral learning-rate estimates for the bird task)
+  │   │
+  │   ├── experiment_2/
+  │   │   ├── data_sealion_aligned.mat
+  │   │   │   (preprocessed aligned sea lion task data)
+  │   │   ├── data_turtle_aligned.mat
+  │   │   │   (preprocessed aligned turtle task data)
+  │   │   ├── distrHMM_rho_fit_params_sealion_aligned.mat
+  │   │   │   (distributed-HMM fitted parameter estimates for the aligned sea lion task)
+  │   │   ├── distrHMM_rho_fit_params_turtle_aligned.mat
+  │   │   │   (distributed-HMM fitted parameter estimates for the aligned turtle task)
+  │   │   ├── distrHMM_rho_fit_sealion.mat
+  │   │   │   (distributed-HMM fit results for the sea lion task, used for model recovery analyses)
+  │   │   ├── fa_score_pooled_ex2_factors2.mat
+  │   │   │   (pooled factor scores across experiment 2 tasks)
+  │   │   ├── factor_glm_distr_lr_sealion_aligned.mat
+  │   │   │   (GLM results relating factor scores and distributed-HMM learning-rate effects in sea lion)
+  │   │   ├── factor_glm_distr_lr_supp_sealion_aligned.mat
+  │   │   │   (supplementary GLM results for sea lion)
+  │   │   ├── factor_glm_distr_lr_supp_turtle_aligned.mat
+  │   │   │   (supplementary GLM results for turtle)
+  │   │   ├── factor_glm_distr_lr_turtle_aligned.mat
+  │   │   │   (GLM results relating factor scores and distributed-HMM learning-rate effects in turtle)
+  │   │   ├── factor_glm_distr_lr_valence.mat
+  │   │   │   (GLM results for distributed-HMM learning-rate valence analyses)
+  │   │   ├── factor_glm_lr_valence.mat
+  │   │   │   (GLM results for model-neutral learning-rate valence analyses)
+  │   │   └── hidden_state.mat
+  │   │       (hidden-state trajectories used for experiment 2 analyses)
+  │   │
+  │   └── experiment_sim/
+  │       ├── data_sim_binary_distrHMM_rho.mat
+  │       │   (simulated data for distributed-HMM analyses)
+  │       ├── distrHMM_rho_fit_sim/
+  │       │   (folder containing simulation-based distributed-HMM fit outputs)
+  │       ├── distrHMM_rho_fit_sim_params.mat
+  │       │   (simulated/recovered parameter sets for parameter recovery analysis)
+  │       ├── distrHMM_rho_fit_sim.mat
+  │       │   (distributed-HMM simulation fit results)
+  │       └── sim_lesioned.mat
+  │           (simulation outputs for lesioned-model analyses)
+  │
+  ├── matlab_code/
+  │   ├── code_exp1/
+  │   │   ├── critical_value_grouping_fascore.m
+  │   │   │   (theory-guided classification analysis for bird-task factor scores)
+  │   │   ├── demo2tbl.m
+  │   │   │   (generate demographic summary tables)
+  │   │   ├── factor_glm_mn_lr_supp.m
+  │   │   │   (supplementary GLM analyses for bird-task factor scores)
+  │   │   ├── factor_glm_mn_lr.m
+  │   │   │   (main GLM analysis relating bird-task factor scores and model-neutral LR effects)
+  │   │   ├── factor_score.m
+  │   │   │   (factor-score computation / analysis for experiment 1)
+  │   │   ├── get_data.m
+  │   │   │   (load and preprocess bird-task data)
+  │   │   └── model_neutral.m
+  │   │       (compute model-neutral learning-rate measures)
+  │   │
+  │   ├── code_exp2/
+  │   │   ├── cbm/
+  │   │   │   (CBM fitting code and dependencies)
+  │   │   ├── distrHMM_model.m
+  │   │   │   (defines the distributed-HMM model)
+  │   │   ├── distrHMM_recovery_lr.m
+  │   │   │   (learning-rate recovery analysis for distributed-HMM)
+  │   │   ├── distrHMM_rho_fit.m
+  │   │   │   (fit distributed-HMM models)
+  │   │   ├── distrHMM_rho_recovery.m
+  │   │   │   (parameter recovery analysis for distributed-HMM)
+  │   │   ├── factor_glm_distr_lr_supp.m
+  │   │   │   (supplementary GLM analyses for experiment 2)
+  │   │   ├── factor_glm_distr_lr.m
+  │   │   │   (main GLM analysis relating factor scores and distributed-HMM LR effects)
+  │   │   ├── factor_glm_lr_valence.m
+  │   │   │   (GLM analysis for valence-related learning-rate effects)
+  │   │   ├── factor_score_pooled.m
+  │   │   │   (pooled factor-score analysis across Sea Lion and Turtle tasks)
+  │   │   ├── get_data.m
+  │   │   │   (load and preprocess experiment 2 data)
+  │   │   └── response_model.m
+  │   │       (response model definition)
+  │   │
+  │   ├── tools/
+  │   │   (shared helper functions used across analyses)
+  │   └── stats_table.m
+  │       (generate manuscript statistics tables)
+  │
+  ├── python_code/
+  │   ├── fig_toolbox.py
+  │   │   (custom plotting utilities used for manuscript figures)
+  │   └── figures.ipynb
+  │       (notebook to reproduce the main manuscript figures)
+  │    
+  ├── saved_figures/
+  │   └── (stores figures generated from figures.ipynb and MATLAB plotting scripts)
+  │
+  └── README.md
 
 **Prerequisites**
 
@@ -51,9 +134,9 @@ A normative theory of learning under uncertainty. The repository is structured t
 
 Clone this repository:
 
-  git clone https://github.com/piraylab/PF-HMM.git
+  git clone https://github.com/piraylab/psyc-pathology-main.git
 
-  cd PF-HMM
+  cd psyc-pathology-main
 
 Install Python dependencies:
 
@@ -66,10 +149,4 @@ Install Python dependencies:
 
 **Citation**
 
-If you find this work useful, please cite our paper: https://osf.io/preprints/osf/vuc5g_v1
-
-experiment_binA from:
-Piray, P., Ly, V., Roelofs, K., Cools, R., & Toni, I. (2019). Emotionally aversive cues suppress neural systems underlying optimal learning in socially anxious individuals. Journal of Neuroscience, 1394–18. https://doi.org/10.1523/JNEUROSCI.1394-18.2018
-
-experiment_binB from: 
-Jang, A. I., Nassar, M. R., Dillon, D. G., & Frank, M. J. (2019). Positive reward prediction errors during decision-making strengthen memory encoding. Nature Human Behaviour, 3(7), Article 7. https://doi.org/10.1038/s41562-019-0597-3
+If you find this work useful, please cite our paper: 
