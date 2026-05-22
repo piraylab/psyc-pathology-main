@@ -7,9 +7,6 @@ function [val, tx, lr, signals, block_effect] = distrHMM_model(parameters, obser
     if nargin<1, parameters = zeros(1, 4); end
     
     if do_transform == 1
-        % transform parameters
-        % eps_sigmoid = 1e-6;
-        % sigmoid = @(x)(1-eps_sigmoid)./(1+exp(-x)) + eps_sigmoid;
         sigmoid = @(x)(1)./(1+exp(-x)); 
 
         umax = 1; % max of beta distribution (between 0 and 1)
@@ -20,19 +17,6 @@ function [val, tx, lr, signals, block_effect] = distrHMM_model(parameters, obser
         v_sto = v_max*sigmoid(parameters(4));
         
         tx = [u_vol, u_sto, v_vol, v_sto];
-
-    % elseif do_transform == 2 % beta
-    %     eps_sigmoid = eps;
-    %     sigmoid = @(x)(1-eps_sigmoid)./(1+exp(-x)) + eps_sigmoid;    
-    %     a_vol = 1+9*sigmoid(parameters(1));
-    %     a_sto = 1+9*sigmoid(parameters(2));
-    %     b_vol = 1+9*sigmoid(parameters(3));
-    %     b_sto = 1+9*sigmoid(parameters(4));
-    %     u_vol = a_vol./(a_vol + b_vol);    
-    %     v_vol = u_vol / a_vol;
-    %     u_sto = a_sto./(a_sto + b_sto);
-    %     v_sto = u_sto./a_sto;
-    %     tx = [u_vol, u_sto, v_vol, v_sto];
     else
         tx = parameters;
     end

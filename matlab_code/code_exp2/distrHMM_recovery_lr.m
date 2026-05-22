@@ -51,19 +51,6 @@ function stats = distrHMM_recovery_lr(sim_lr, rec_lr, savePath, fname)
     stats.effects.r      = r_eff;
     stats.effects.p      = p_eff;
 
-    % % ------------ pretty print ------------
-    % fprintf('\n=== Correlation: Raw Learning Rates (sim vs recovered) ===\n');
-    % for j = 1:4
-    %     fprintf('  %-8s: r = %6.3f, p = %.3g\n', blockLabels{j}, r_lr(j), p_lr(j));
-    % end
-    % 
-    % fprintf('\n=== Correlation: Learning-Rate Effects (sim vs recovered) ===\n');
-    % for j = 1:4
-    %     fprintf('  %-24s: r = %6.3f, p = %.3g\n', effLabels{j}, r_eff(j), p_eff(j));
-    % end
-    % fprintf('\n');
-
-    % ------------ optional save args ------------
     doSave = (nargin >= 3) && ~isempty(savePath) && (nargin >= 4) && ~isempty(fname);
 
     % ===== FIGURE 1: Raw learning rates =====
@@ -101,23 +88,6 @@ function stats = distrHMM_recovery_lr(sim_lr, rec_lr, savePath, fname)
             'YLabels', repmat({'Recovered LR'}, 1, 4), ...
             'Title', 'Recovery of Learning Rates');
     end
-
-    % ===== FIGURE 2: LR Effects =====
-    % if doSave
-    %     plot_param_recovery(sim_lr_eff, rec_lr_eff, ...
-    %         'PanelTitles', effLabels, ...
-    %         'XLabels', repmat({'True LR'}, 1, 4), ...
-    %         'YLabels', repmat({'Recovered LR'}, 1, 4), ...
-    %         'Title', 'Recovery of Learning-Rate Effects', ...
-    %         'SavePath', savePath, ...
-    %         'FilePrefix', [fname '_distr_lr_effects_recovery']);
-    % else
-        % plot_param_recovery(sim_lr_eff, rec_lr_eff, ...
-        %     'PanelTitles', effLabels, ...
-        %     'XLabels', repmat({'True LR'}, 1, 4), ...
-        %     'YLabels', repmat({'Recovered LR'}, 1, 4), ...
-        %     'Title', 'Recovery of Learning-Rate Effects');
-    % end
 
 end
 

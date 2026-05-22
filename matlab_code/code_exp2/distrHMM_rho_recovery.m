@@ -121,10 +121,6 @@ function st = distrHMM_rho_recovery(doPlot)
     transform_func = @(x)[logit(x(:, 1:2), 1), logit(x(:, 3:4), 2)];
     sim_params = [transform_func(sim_params), sim_params(:,5)];
     recovered_params = [transform_func(recovered_params), recovered_params(:,5)];
-
-    fprintf("Mean simulated params: %.3f %.3f %.3f %.3f %.3f\n", mean(sim_params,1));
-    fprintf("Mean recovered params: %.3f %.3f %.3f %.3f %.3f\n", mean(recovered_params,1));
-    
     
     %% Plots / stats
     save_path = fullfile('..', '..', 'saved_figures');
@@ -136,18 +132,11 @@ function st = distrHMM_rho_recovery(doPlot)
             fname = 'FigureSupp_distr_param_recovery';
             plot_param_recovery(sim_params, recovered_params); %'SavePath', save_path, 'FilePrefix', fname);
         end
-        % if exist('plot_recovery_errors','file')
-        %     fname = 'FigureSupp_distr_param_recovery_errors';
-        %     plot_recovery_errors(sim_params, recovered_params); %'SavePath', save_path, 'FilePrefix', fname);
-        % end
         if exist('plot_recovery_error_density', 'file')
             fname = 'FigureSupp_distr_param_recovery_errors_density';
             plot_recovery_error_density(sim_params, recovered_params); % 'SavePath', save_path, 'FilePrefix', fname);
         end
     end
-    % % Save to ./figs
-    % plot_recovery_error_density(sim_params, recovered_params, ...
-    %     'XLim', [-3 3], 'SavePath','./figs');
 
      %% Collect output
     % 1) Parameter recovery error summary table
@@ -161,24 +150,9 @@ function st = distrHMM_rho_recovery(doPlot)
     st.table.rows = {'u\_vol','u\_sto','v\_vol','v\_sto','rho'};
     st.table.columns = {'25% quantile','Median','75% quantile'};
 
-    % T = array2table(st.table.data, ...
-    %     'RowNames', st.table.rows, ...
-    %     'VariableNames', st.table.columns);
-    % fprintf('\n=== Parameter recovery error summary ===\n');
-    % disp(T);
-
-    % 2) Learning-rate recovery correlation table
-    % rows = blocks
-    % cols = r and p
     st.lr_tbl.data = [stats.lr.r; stats.lr.p];
     st.lr_tbl.rows = {'r','p'};
     st.lr_tbl.columns = stats.lr.labels;
-
-    % Tlr = array2table(st.lr_tbl.data, ...
-    %     'RowNames', st.lr_tbl.rows, ...
-    %     'VariableNames', st.lr_tbl.columns);
-    % fprintf('\n=== Learning-rate recovery correlations ===\n');
-    % disp(Tlr);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

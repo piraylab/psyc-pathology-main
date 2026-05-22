@@ -27,10 +27,9 @@ function out = critical_value_grouping_fascore(experiment)
     fdir = fullfile('..', '..', 'mat_data', 'experiment_1');
 
     %% Load factor scores
-    facFile = fullfile(fdir, sprintf('fa_score_ex%d_factors%d_%s.mat', exclude_criteria, num_factors, experiment));
+    facFile = fullfile(fdir, sprintf('fa_score_ex%g_factors%d_%s.mat', exclude_criteria, num_factors, experiment));
     fprintf('Loading factor scores from: %s\n', facFile);
     F = load(facFile);
-
     fa_scores = F.F;
     workerIds = F.workerIds;
 
@@ -52,12 +51,12 @@ function out = critical_value_grouping_fascore(experiment)
     fprintf('Pilot subjects: %d\n', size(pilot_lr,1));
 
     %% Load main LR
-    lrFile = fullfile(fdir, sprintf('model_neutral_%s.mat', experiment));
+    lrFile = fullfile(fdir, 'model_neutral_bird.mat');
     L = load(lrFile);
     lr = L.lr;
     lr_workerIds = L.workerIds;
     fprintf('Using %s as LR source.\n', lrFile);
-
+    
     %% Match LR to factor-score subjects
     lr_matched = match_effects(workerIds, lr_workerIds, lr);
 
@@ -68,17 +67,14 @@ function out = critical_value_grouping_fascore(experiment)
     fprintf('Mean vol_lr_eff: %.4f\n', mean(vol_lr_eff, 'omitnan'));
     fprintf('Mean sto_lr_eff: %.4f\n', mean(sto_lr_eff, 'omitnan'));
 
-    %% Load RPM and AGE
+    %% Load AGE
     [data, ~, ~] = get_data(experiment, filter, exclude_criteria);
     d_workerIds = string(cellfun(@(x) x.workerId, data, 'UniformOutput', false));
-    d_rpm       = cellfun(@(x) x.rpm_score, data);
-    d_age_month = cellfun(@(x) x.age_month, data);
-
-    d_rpm       = match_effects(workerIds, d_workerIds, d_rpm(:));
-    d_age_month = match_effects(workerIds, d_workerIds, d_age_month(:));
+    d_age = cellfun(@(x) x.age, data);
+    d_age = match_effects(workerIds, d_workerIds, d_age(:));
 
     %% Valid subjects
-    valid = ~isnan(d_age_month) & ~isnan(d_rpm) & all(~isnan(lr_eff), 2) & all(~isnan(fa_scores), 2);
+    valid = ~isnan(d_age) & all(~isnan(lr_eff), 2) & all(~isnan(fa_scores), 2);
 
     workerIds_valid = workerIds(valid);
     fa_scores_valid = fa_scores(valid, :);
@@ -86,8 +82,7 @@ function out = critical_value_grouping_fascore(experiment)
     lr_eff_valid = lr_eff(valid, :);
     vol_lr_eff_valid = vol_lr_eff(valid);
     sto_lr_eff_valid = sto_lr_eff(valid);
-    d_rpm_valid = d_rpm(valid);
-    d_age_month_valid = d_age_month(valid);
+    d_age_valid = d_age(valid);
 
     %% Grouping
     idx_intact = (sto_lr_eff_valid < pilot_m_sto_lr_eff) & (vol_lr_eff_valid > pilot_m_vol_lr_eff);
@@ -142,13 +137,13 @@ function out = critical_value_grouping_fascore(experiment)
 
     out.factors.between = run_group_anova_set(factor_vars, factor_names, group_masks, group_names);
 
-    %% Covariates: RPM and age_month
+    %% Covariates: age
     fprintf('\n==============================\n');
     fprintf('BETWEEN-GROUP ANALYSIS: COVARIATES\n');
     fprintf('==============================\n\n');
 
-    covar_vars = {d_rpm_valid, d_age_month_valid};
-    covar_names = {'RPM', 'Age (months)'};
+    covar_vars = {d_age_valid};
+    covar_names = {'Age'};
 
     out.covariates.names = covar_names;
     out.covariates.values = covar_vars;
@@ -158,60 +153,6 @@ function out = critical_value_grouping_fascore(experiment)
     savefile = fullfile(fdir, sprintf('%s_%s.mat', mfilename, experiment));
     save(savefile, 'out');
     
-    %% Within-group factor tests
-    fprintf('\n========================================\n');
-    fprintf('WITHIN-GROUP ANALYSIS: FACTORS\n');
-    fprintf('========================================\n\n');
-
-    comp_names = {'Factor 1 vs Factor 2', 'F1 - F2 vs 0'};
-
-    out.factors.within.group_names = group_names;
-    out.factors.within.factor_names = factor_names;
-    out.factors.within.comp_names = comp_names;
-    out.factors.within.mean = nan(3,3);
-    out.factors.within.se   = nan(3,3);
-    out.factors.within.n    = nan(3,1);
-    out.factors.within.t    = nan(3,2);
-    out.factors.within.df   = nan(3,2);
-    out.factors.within.p    = nan(3,2);
-
-    for g = 1:3
-        mask = group_masks{g};
-
-        f1 = q_f1(mask);
-        f2 = q_f2(mask);
-        fd = q_diff(mask);
-
-        valid12 = ~isnan(f1) & ~isnan(f2);
-        validd0 = ~isnan(fd);
-
-        out.factors.within.mean(g,1) = mean(f1, 'omitnan');
-        out.factors.within.mean(g,2) = mean(f2, 'omitnan');
-        out.factors.within.mean(g,3) = mean(fd, 'omitnan');
-
-        out.factors.within.se(g,1) = serr(f1(~isnan(f1)));
-        out.factors.within.se(g,2) = serr(f2(~isnan(f2)));
-        out.factors.within.se(g,3) = serr(fd(~isnan(fd)));
-
-        out.factors.within.n(g) = sum(valid12);
-
-        fprintf('----- %s -----\n', group_names{g});
-        fprintf('Factor 1: mean = %.3f ± %.3f\n', out.factors.within.mean(g,1), out.factors.within.se(g,1));
-        fprintf('Factor 2: mean = %.3f ± %.3f\n', out.factors.within.mean(g,2), out.factors.within.se(g,2));
-        fprintf('F1 - F2 : mean = %.3f ± %.3f\n', out.factors.within.mean(g,3), out.factors.within.se(g,3));
-
-        [~, out.factors.within.p(g,1), ~, st] = ttest(f1(valid12), f2(valid12));
-        out.factors.within.t(g,1) = st.tstat;
-        out.factors.within.df(g,1) = st.df;
-        fprintf('%s: t(%d)=%.3f, p=%.4g\n', comp_names{1}, st.df, st.tstat, out.factors.within.p(g,1));
-
-        [~, out.factors.within.p(g,2), ~, st] = ttest(fd(validd0));
-        out.factors.within.t(g,2) = st.tstat;
-        out.factors.within.df(g,2) = st.df;
-        fprintf('%s: t(%d)=%.3f, p=%.4g\n', comp_names{2}, st.df, st.tstat, out.factors.within.p(g,2));
-
-        fprintf('--------------------------------------------\n\n');
-    end
 end
 
 

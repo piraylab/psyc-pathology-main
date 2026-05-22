@@ -3,7 +3,7 @@ psyc-pathology-main
 
 **Brief Description**
 
-This repository contains data, MATLAB code, and Python scripts associated with our paper, TODO: add paper title. 
+This repository contains data, MATLAB code, and Python scripts associated with our paper, Dissociating volatility and stochasticity reveals transdiagnostic computational signatures of psychopathology. 
 
 **File organization**::
 
@@ -18,9 +18,9 @@ This repository contains data, MATLAB code, and Python scripts associated with o
   │   │   ├── fa_score_ex2_factors2_bird.mat
   │   │   │   (two-factor EFA results for the bird task)
   │   │   ├── factor_glm_mn_lr_bird.mat
-  │   │   │   (GLM results relating bird-task factor scores and model-neutral learning-rate effects)
-  │   │   ├── factor_glm_mn_lr_supp_bird.mat
-  │   │   │   (supplementary GLM results for bird-task factor-score analyses)
+  │   │   │   (GLM results of factors ~ lr effects)
+  │   │   ├── mn_lr_glm_factor_bird.mat
+  │   │   │   (GLM results of lr effects ~ factors)
   │   │   ├── model_neutral_bird.mat
   │   │   │   (model-neutral learning-rate estimates for the bird task)
   │   │   ├── model_neutral_pilot1.mat
@@ -82,6 +82,8 @@ This repository contains data, MATLAB code, and Python scripts associated with o
   │   │   │   (factor-score computation / analysis for experiment 1)
   │   │   ├── get_data.m
   │   │   │   (load and preprocess bird-task data)
+  │   │   ├── mn_lr_glm_factor.m
+  │   │   │   (GLM analysis relating model-neutral learning rates and factor scores)
   │   │   └── model_neutral.m
   │   │       (compute model-neutral learning-rate measures)
   │   │

@@ -1,90 +1,180 @@
 function [st_gender, st_age, st_rxec_count, st_rxec_pct] = demo2tbl(experiment)
 % demo2tbl
-% Return 4 demographic summary tables:
+% Returns 4 demographic summary tables:
 %   1) gender counts
 %   2) age-bin counts
 %   3) race x ethnicity counts
 %   4) race x ethnicity percentages within ethnicity
 %
-% Outputs are structs with:
-%   st.table.data
-%   st.table.rows
-%   st.table.columns
+% Final conventions:
+%   - blank / missing / "Rather not say" -> "Unknown"
+%   - age <= 18 -> "Unknown"
+currentFolder = fileparts(mfilename('fullpath'));
+cd(currentFolder)
 
-    if nargin < 1
-        experiment = 'bird';
-    end
+if nargin < 1 || isempty(experiment)
+    experiment = 'binary';
+end
 
-    filter = true;
-    exclude_criteria = 2;
 
+if contains(experiment, 'bird')
+    [data_bird, ~, ~, demo_data] = get_data('bird', true, 2);
+else contains(experiment, 'binary')
+    % Binary aligned sample: use aligned data only for workerIds
     currentFolder = fileparts(mfilename('fullpath'));
-    cd(currentFolder);
 
-    [~, ~, ~, demo_data] = get_data(experiment, filter, exclude_criteria);
+    % Load aligned dataset from code_binary to get workerIds
+    cd(fullfile(currentFolder, '..', 'code_exp2'));
+    [data1_aligned, ~, ~, demo_data1] = get_data('sealion_aligned', true, 2);
+    [data2_aligned, ~, ~, demo_data2] = get_data('turtle_aligned', true, 2);
+    ids1 = string(cellfun(@(x) x.workerId, data1_aligned, 'UniformOutput', false));
+    ids2 = string(cellfun(@(x) x.workerId, data2_aligned, 'UniformOutput', false));
+     
+    % common IDs, in the order they appear in sealion
+    [common_ids, idx1, idx2] = intersect(ids1, ids2, 'stable');
+    % matched subsets
+    demo_data = demo_data1(idx1);
+end
 
-    % ---------- Gender ----------
-    gender = strings(numel(demo_data),1);
-    for i = 1:numel(demo_data)
-        gender(i) = string(demo_data{i}.('demo_gender-categorical'));
-    end
-    gender = strtrim(gender);
-    gender = gender(strlength(gender) > 0);
+%% Sex
+sex_levels = ["Female","Male","Other","Unknown"];
+sex_counts = zeros(numel(sex_levels),1);
 
-    [g_labels, ~, gi] = unique(gender, 'stable');
-    g_counts = accumarray(gi, 1);
+for i = 1:numel(demo_data)
+    x = norm_text(get_field(demo_data{i}, 'demo_gender-categorical'));
 
-    st_gender.table.data = g_counts;
-    st_gender.table.rows = cellstr(g_labels);
-    st_gender.table.columns = {'N'};
-
-    % ---------- Age bins ----------
-    ages = nan(numel(demo_data),1);
-    for i = 1:numel(demo_data)
-        ages(i) = demo_data{i}.demo_age;
-    end
-    ages = ages(~isnan(ages) & ages > 0);
-
-    age_labels = ["1-18","19-35","36-50","51-64","65+"];
-    age_counts = zeros(numel(age_labels),1);
-
-    age_counts(1) = sum(ages >= 1  & ages <= 18);
-    age_counts(2) = sum(ages >= 19 & ages <= 35);
-    age_counts(3) = sum(ages >= 36 & ages <= 50);
-    age_counts(4) = sum(ages >= 51 & ages <= 64);
-    age_counts(5) = sum(ages >= 65);
-
-    st_age.table.data = age_counts;
-    st_age.table.rows = cellstr(age_labels');
-    st_age.table.columns = {'N'};
-
-    % ---------- Race x Ethnicity ----------
-    ethnicity = strings(numel(demo_data),1);
-    race = strings(numel(demo_data),1);
-
-    for i = 1:numel(demo_data)
-        ethnicity(i) = string(demo_data{i}.demo_ethnicity);
-        race(i) = string(demo_data{i}.demo_race);
+    if contains(x, "female")
+        lab = "Female";
+    elseif contains(x, "male")
+        lab = "Male";
+    elseif contains(x, "other")
+        lab = "Other";
+    else
+        lab = "Unknown";
     end
 
-    ethnicity = strtrim(ethnicity);
-    race = strtrim(race);
+    sex_counts(sex_levels == lab) = sex_counts(sex_levels == lab) + 1;
+end
 
-    keep = strlength(ethnicity) > 0 & strlength(race) > 0;
-    ethnicity = ethnicity(keep);
-    race = race(keep);
+st_gender.table.data = sex_counts;
+st_gender.table.rows = cellstr(sex_levels');
+st_gender.table.columns = {'N'};
 
-    [eth_labels, ~, ei] = unique(ethnicity, 'stable');
-    [race_labels, ~, ri] = unique(race, 'stable');
+%% Age
+age_levels = ["19-35","36-50","51-64","65+","Unknown"];
+age_counts = zeros(numel(age_levels),1);
 
-    C = accumarray([ei, ri], 1, [numel(eth_labels), numel(race_labels)]);
-    C_pct = C ./ sum(C, 2);
+for i = 1:numel(demo_data)
+    a = get_num(demo_data{i}, 'demo_age');
 
-    st_rxec_count.table.data = C;
-    st_rxec_count.table.rows = cellstr(eth_labels);
-    st_rxec_count.table.columns = matlab.lang.makeValidName(cellstr(race_labels));
+    if isnan(a) || a <= 18
+        k = 5;
+    elseif a <= 35
+        k = 1;
+    elseif a <= 50
+        k = 2;
+    elseif a <= 64
+        k = 3;
+    else
+        k = 4;
+    end
 
-    st_rxec_pct.table.data = C_pct;
-    st_rxec_pct.table.rows = cellstr(eth_labels);
-    st_rxec_pct.table.columns = matlab.lang.makeValidName(cellstr(race_labels));
+    age_counts(k) = age_counts(k) + 1;
+end
+
+st_age.table.data = age_counts;
+st_age.table.rows = cellstr(age_levels');
+st_age.table.columns = {'N'};
+
+%% Ethnicity x Race
+eth_levels = ["Not Hispanic or Latino","Hispanic or Latino","Unknown"];
+race_levels = [ ...
+    "White", ...
+    "Black or African American", ...
+    "Asian", ...
+    "American Indian or Alaska Native", ...
+    "Native Hawaiian or Other Pacific Islander", ...
+    "Other", ...
+    "Unknown"];
+
+C = zeros(numel(eth_levels), numel(race_levels));
+
+for i = 1:numel(demo_data)
+    eth = norm_text(get_field(demo_data{i}, 'demo_ethnicity'));
+    race = norm_text(get_field(demo_data{i}, 'demo_race'));
+
+    % ethnicity
+    if contains(eth, "not hispanic")
+        eth_lab = "Not Hispanic or Latino";
+    elseif contains(eth, "hispanic")
+        eth_lab = "Hispanic or Latino";
+    else
+        eth_lab = "Unknown";
+    end
+
+    % race
+    if contains(race, "white")
+        race_lab = "White";
+    elseif contains(race, "black") || contains(race, "african")
+        race_lab = "Black or African American";
+    elseif contains(race, "asian")
+        race_lab = "Asian";
+    elseif contains(race, "american indian") || contains(race, "alaska native")
+        race_lab = "American Indian or Alaska Native";
+    elseif contains(race, "native hawaiian") || contains(race, "pacific islander")
+        race_lab = "Native Hawaiian or Other Pacific Islander";
+    elseif contains(race, "other")
+        race_lab = "Other";
+    else
+        race_lab = "Unknown";
+    end
+
+    r = find(eth_levels == eth_lab, 1);
+    c = find(race_levels == race_lab, 1);
+    C(r,c) = C(r,c) + 1;
+end
+
+C_pct = C ./ sum(C,2);
+
+st_rxec_count.table.data = C;
+st_rxec_count.table.rows = cellstr(eth_levels');
+st_rxec_count.table.columns = matlab.lang.makeValidName(cellstr(race_levels));
+
+st_rxec_pct.table.data = C_pct;
+st_rxec_pct.table.rows = cellstr(eth_levels');
+st_rxec_pct.table.columns = matlab.lang.makeValidName(cellstr(race_levels));
+end
+
+function x = get_field(s, fname)
+if isfield(s, fname)
+    x = s.(fname);
+else
+    x = "";
+end
+end
+
+function x = get_num(s, fname)
+if isfield(s, fname) && isnumeric(s.(fname)) && isscalar(s.(fname))
+    x = s.(fname);
+else
+    x = NaN;
+end
+end
+
+function x = norm_text(x)
+if isstring(x)
+    x = strjoin(x, ' ');
+elseif ischar(x)
+    x = string(x);
+elseif iscell(x)
+    x = strjoin(string(x), ' ');
+else
+    x = "";
+end
+
+x = lower(strtrim(x));
+
+if strlength(x) == 0 || contains(x, "rather not say") || contains(x, "unknown")
+    x = "unknown";
+end
 end

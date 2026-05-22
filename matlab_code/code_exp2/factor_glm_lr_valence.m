@@ -77,9 +77,10 @@ lr2_eff = lr2_matched * m;
 %   7: Valence_x_V
 %   8: Valence_S_x_V
 eff_lr = [lr1_eff + lr2_eff, lr1_eff - lr2_eff];
-
-fprintf('Mean lr1_eff: %.4f, %.4f, %.4f, %.4f\n', mean(lr1_eff, 1));
-fprintf('Mean lr2_eff: %.4f, %.4f, %.4f, %.4f\n', mean(lr2_eff, 1));
+if print
+    fprintf('Mean lr1_eff: %.4f, %.4f, %.4f, %.4f\n', mean(lr1_eff, 1));
+    fprintf('Mean lr2_eff: %.4f, %.4f, %.4f, %.4f\n', mean(lr2_eff, 1));
+end
 
 %% Standardize regressors and dependent variables
 eff_lr = zscore(eff_lr);

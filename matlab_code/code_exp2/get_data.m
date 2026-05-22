@@ -1,4 +1,4 @@
-function [data, surveys, metadata] = get_data(experiment, filter, exclude_criteria)
+function [data, surveys, metadata, demo_data] = get_data(experiment, filter, exclude_criteria)
     % get_data(experiment, [exclude_criteria], [filter])
     %
     % Mandatory:
@@ -80,6 +80,7 @@ function [data, surveys, metadata] = get_data(experiment, filter, exclude_criter
 
     % filter trial and survey data accordingly
     filtered_trials_data = f.trials_data(valid_idx);
+    filtered_demo = f.demo_data(valid_idx);
     if isfield(f, 'survey_data') 
         filtered_survey_data = f.survey_data(valid_idx);
     else
@@ -100,6 +101,9 @@ function [data, surveys, metadata] = get_data(experiment, filter, exclude_criter
         data{i}.rand_order = filtered_trials_data{i}.randomization_order;
         data{i}.response_time = filtered_trials_data{i}.response_time;
         data{i}.workerId = filtered_trials_data{i}.workerId;
+        data{i}.age = filtered_demo{i}.demo_age;
+        data{i}.sex = filtered_demo{i}.demo_sex;
+        data{i}.age_month = filtered_demo{i}.demo_age_month;
     end
     % Define surveys and metadata output
     surveys = filtered_survey_data;
@@ -107,6 +111,7 @@ function [data, surveys, metadata] = get_data(experiment, filter, exclude_criter
     timeseries_fname = fullfile('..', '..', 'mat_data', 'experiment_2', 'hidden_state.mat');
     timeseries_f = load(timeseries_fname);
     metadata.hidden_state = timeseries_f.timeseries.hidden_state;
+    demo_data = filtered_demo;
     
     if isfield(metadata, 'total_command')
         metadata.total_command = total_command;

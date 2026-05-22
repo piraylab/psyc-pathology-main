@@ -39,7 +39,6 @@ end
 
 %% Load factor scores
 facFile = fullfile(resultsDir, sprintf('fa_score_ex%d_factors%d_%s.mat', exclude_criteria, num_factors, experiment));
-fprintf('Excluding subjects with command criteria > %g\n', exclude_criteria);
 
 if ~exist(facFile, 'file')
     error('Factor file not found: %s', facFile);
