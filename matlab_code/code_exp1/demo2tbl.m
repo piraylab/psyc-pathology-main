@@ -61,13 +61,13 @@ st_gender.table.rows = cellstr(sex_levels');
 st_gender.table.columns = {'N'};
 
 %% Age
-age_levels = ["19-35","36-50","51-64","65+","Unknown"];
+age_levels = ["18-35","36-50","51-64","65+","Unknown"];
 age_counts = zeros(numel(age_levels),1);
 
 for i = 1:numel(demo_data)
     a = get_num(demo_data{i}, 'demo_age');
 
-    if isnan(a) || a <= 18
+    if isnan(a)
         k = 5;
     elseif a <= 35
         k = 1;
