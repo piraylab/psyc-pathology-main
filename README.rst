@@ -151,4 +151,4 @@ Install Python dependencies:
 
 **Citation**
 
-If you find this work useful, please cite our paper: 
+If you find this work useful, please cite our paper: Fang, X., & Piray, P. (2026). Dissociating volatility and stochasticity reveals transdiagnostic computational signatures of psychopathology. bioRxiv : the preprint server for biology, 2026.05.22.727329. https://doi.org/10.64898/2026.05.22.727329
